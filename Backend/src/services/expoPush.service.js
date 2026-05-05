@@ -12,9 +12,9 @@ async function sendPushNotification(pushTokens, { title, body, data = {} }) {
   const messages = [];
 
   for (const pushToken of pushTokens) {
-    // Validate token
-    if (!Expo.isExpoPushToken(pushToken)) {
-      console.warn(`[PushService] Not a valid Expo push token: ${pushToken}`);
+    // Basic validation: ensure it looks like an Expo token
+    if (!pushToken || !pushToken.startsWith('ExponentPushToken')) {
+      console.warn(`[PushService] Not a valid Expo push token format: ${pushToken}`);
       continue;
     }
 

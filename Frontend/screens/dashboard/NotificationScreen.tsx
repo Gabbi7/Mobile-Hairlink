@@ -16,6 +16,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown, FadeIn, Layout, useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import api from '../../lib/api';
+import { supabase } from '../../lib/supabase';
 
 const shadows = {
   header: {
@@ -89,7 +90,7 @@ export default function NotificationScreen({ onBack, onTrack, role = 'Donor' }: 
 
   const fetchNotifications = async () => {
     try {
-      const response = await api.get('/notifications');
+      const response = await api.get('/api/notifications');
       setNotifications(response.data || []);
     } catch (err) {
       console.error('Error fetching notifications:', err);
@@ -101,7 +102,7 @@ export default function NotificationScreen({ onBack, onTrack, role = 'Donor' }: 
 
   const markAllAsRead = async () => {
     try {
-      await api.post('/notifications/read-all');
+      await api.post('/notifications/read-all'); // Using existing path for now, but aliased ones are available
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
     } catch (err) {
       console.error('Error marking all as read:', err);
@@ -109,11 +110,38 @@ export default function NotificationScreen({ onBack, onTrack, role = 'Donor' }: 
   };
 
   React.useEffect(() => {
+    let subscription: any;
+
     const init = async () => {
       await fetchNotifications();
       await markAllAsRead(); // Auto-mark all as read when screen opens
+      
+      // Setup Supabase Realtime
+      try {
+        const meRes = await api.get('/me');
+        const userId = meRes.data.id;
+        
+        subscription = supabase
+          .channel('public:notifications')
+          .on(
+            'postgres_changes',
+            { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
+            (payload) => {
+              setNotifications(prev => [payload.new as NotificationItem, ...prev]);
+            }
+          )
+          .subscribe();
+      } catch (err) {
+        console.error('Error setting up real-time notifications', err);
+      }
     };
     init();
+
+    return () => {
+      if (subscription) {
+        supabase.removeChannel(subscription);
+      }
+    };
   }, []);
   const onRefresh = () => {
     setRefreshing(true);
@@ -122,7 +150,7 @@ export default function NotificationScreen({ onBack, onTrack, role = 'Donor' }: 
 
   const markAsRead = async (id: string) => {
     try {
-      await api.post(`/notifications/${id}/read`);
+      await api.patch(`/api/notifications/${id}/read`);
       setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
     } catch (err) {
       console.error('Error marking as read:', err);

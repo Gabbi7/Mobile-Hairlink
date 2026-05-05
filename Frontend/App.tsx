@@ -11,6 +11,10 @@ import LoginScreen from "./screens/auth/LoginScreen";
 import SignupScreen from "./screens/auth/SignupScreen";
 import VerificationScreen from "./screens/auth/VerificationScreen";
 import ResetPasswordScreen from "./screens/auth/ResetPasswordScreen";
+import { useNotifications } from "./lib/useNotifications";
+import NotificationPrompt from "./components/NotificationPrompt";
+
+
 
 import { NavigationContainer } from "@react-navigation/native";
 
@@ -52,6 +56,11 @@ export default function App() {
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
   const [pendingRole, setPendingRole] = useState<"Donor" | "Recipient" | null>(null);
   const [isRecoveringPassword, setIsRecoveringPassword] = useState(false);
+
+  // Initialize push notifications
+  const { showPrompt, setShowPrompt, handleEnableNotifications } = useNotifications(isAuthenticated);
+
+
 
   useEffect(() => {
     checkAuthStatus();
@@ -162,7 +171,13 @@ export default function App() {
         <NavigationContainer>
           {content}
         </NavigationContainer>
+        <NotificationPrompt 
+          visible={showPrompt} 
+          onAllow={handleEnableNotifications} 
+          onDecline={() => setShowPrompt(false)} 
+        />
       </ErrorBoundary>
+
     </SafeAreaProvider>
   );
 }

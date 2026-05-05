@@ -3,25 +3,25 @@
     "name": "Hair Link",
     "slug": "Hair Link",
     "version": "1.0.0",
-
     "web": {},
-
     "experiments": {
       "tsconfigPaths": true
     },
-
     "plugins": [],
-
     "orientation": "portrait",
-
-
     "userInterfaceStyle": "light",
-
-
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
-    "android": {}
+    "android": {},
+    "extra": {
+      "eas": {
+        "projectId": "7578da22-f0ec-4196-911c-19d3546a326f"
+      }
+    },
+    "owner": "icecandyyy"
   }
 }

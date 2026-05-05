@@ -13,6 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/mobile-api', routes);
+app.use('/api', routes); // Alias to support exact /api/notifications/... requirements
 
 // Health check (optional, but can be used)
 app.get('/', (req, res) => {
