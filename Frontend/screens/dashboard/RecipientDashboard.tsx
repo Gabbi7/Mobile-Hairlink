@@ -18,6 +18,7 @@ import Animated, {
   FadeIn,
   FadeInDown,
   FadeInUp,
+  FadeInRight,
   FadeOut,
   useSharedValue,
   useAnimatedStyle,
@@ -470,8 +471,14 @@ export default function RecipientDashboard({ onLogout, onRoleChange, userName = 
               colors={['#9B59B6', '#8E44AD']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
-              className="rounded-[32px] border-2 border-white/10"
-              style={[{ padding: ms(22) }, shadows.hero]}
+              className="border-2 border-white/10"
+              style={[{ 
+                padding: ms(22),
+                borderTopLeftRadius: ms(25),
+                borderBottomRightRadius: ms(25),
+                borderTopRightRadius: ms(25),
+                borderBottomLeftRadius: ms(25)
+              }, shadows.hero]}
             >
               <View className="flex-row justify-between items-center mb-[10px]">
                 <Text className="font-black text-white/80 tracking-[1.5px]" style={{ fontSize: ms(11) }}>UPCOMING EVENT</Text>

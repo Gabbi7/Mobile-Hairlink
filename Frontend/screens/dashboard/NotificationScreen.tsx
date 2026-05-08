@@ -90,7 +90,7 @@ export default function NotificationScreen({ onBack, onTrack, role = 'Donor' }: 
 
   const fetchNotifications = async () => {
     try {
-      const response = await api.get('/api/notifications');
+      const response = await api.get('/notifications');
       setNotifications(response.data || []);
     } catch (err) {
       console.error('Error fetching notifications:', err);
@@ -130,6 +130,13 @@ export default function NotificationScreen({ onBack, onTrack, role = 'Donor' }: 
               setNotifications(prev => [payload.new as NotificationItem, ...prev]);
             }
           )
+          .on(
+            'postgres_changes',
+            { event: 'UPDATE', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
+            (payload) => {
+              setNotifications(prev => prev.map(n => n.id === payload.new.id ? { ...n, ...payload.new } : n));
+            }
+          )
           .subscribe();
       } catch (err) {
         console.error('Error setting up real-time notifications', err);
@@ -150,7 +157,7 @@ export default function NotificationScreen({ onBack, onTrack, role = 'Donor' }: 
 
   const markAsRead = async (id: string) => {
     try {
-      await api.patch(`/api/notifications/${id}/read`);
+      await api.patch(`/notifications/${id}/read`);
       setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
     } catch (err) {
       console.error('Error marking as read:', err);

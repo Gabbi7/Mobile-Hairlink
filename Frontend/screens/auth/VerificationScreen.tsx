@@ -11,7 +11,7 @@ import {
     StyleSheet,
 } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { s, vs, ms } from '../../lib/scaling';
+import { vs } from '../../lib/scaling';
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { supabase } from "../../lib/supabase";
@@ -114,56 +114,44 @@ export default function VerificationScreen({
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={{ flex: 1 }}
+            className="flex-1"
         >
             <LinearGradient
                 colors={["#FF1493", "#FF69B4", "#FFF0F5"]}
-                style={{ flex: 1 }}
+                className="flex-1"
             >
                 <ScrollView
                     contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
                     bounces={false}
                     keyboardShouldPersistTaps="handled"
                 >
-                    <View style={{ alignItems: "center", paddingHorizontal: ms(24), paddingVertical: vs(20), paddingTop: insets.top + vs(20) }}>
+                    <View className="items-center px-[24px] py-[20px]" style={{ paddingTop: insets.top + vs(20) }}>
 
                         {/* Premium Header Icon */}
-                        <Animated.View entering={FadeInDown.duration(800)} style={styles.premiumIconCircle}>
+                        <Animated.View entering={FadeInDown.duration(800)} className="justify-center items-center mb-[25px] border-[2px] border-white/30 bg-white/20 w-[100px] h-[100px] rounded-[50px]">
                              <LinearGradient
                                 colors={['rgba(255,255,255,0.3)', 'rgba(255,255,255,0.1)']}
-                                style={{ width: '100%', height: '100%', borderRadius: 50, justifyContent: 'center', alignItems: 'center' }}
+                                className="w-full h-full rounded-[50px] justify-center items-center"
                             >
                                 <Ionicons name="mail-open" size={44} color="#fff" />
                             </LinearGradient>
                         </Animated.View>
 
-                        <Animated.Text entering={FadeInUp.delay(200)} style={{ fontSize: 32, fontWeight: "900", color: "#fff", textAlign: "center", marginBottom: 10 }}>
+                        <Animated.Text entering={FadeInUp.delay(200)} className="text-[32px] font-black text-white text-center mb-[10px]">
                             Verify Account
                         </Animated.Text>
-                        <Animated.Text entering={FadeInUp.delay(300)} style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", textAlign: "center", lineHeight: 20, maxWidth: '90%', marginTop: 8 }}>
-                            Can't find the email? Check your <Text style={{ fontWeight: '900', color: '#fff' }}>Spam</Text> or <Text style={{ fontWeight: '900', color: '#fff' }}>Junk</Text> folder. It might be hiding there!
+                        <Animated.Text entering={FadeInUp.delay(300)} className="text-[13px] text-white/85 text-center leading-[20px] max-w-[90%] mt-[8px]">
+                            Can't find the email? Check your <Text className="font-black text-white">Spam</Text> or <Text className="font-black text-white">Junk</Text> folder. It might be hiding there!
                         </Animated.Text>
 
                         {/* Enhanced OTP Card */}
                         <Animated.View 
                             layout={Layout.springify()}
                             entering={FadeInUp.delay(500)} 
-                            style={{
-                                backgroundColor: "#fff",
-                                borderRadius: 35,
-                                paddingVertical: 35,
-                                paddingHorizontal: 25,
-                                width: "100%",
-                                marginTop: 35,
-                                shadowColor: "#000",
-                                shadowOffset: { width: 0, height: 20 },
-                                shadowOpacity: 0.15,
-                                shadowRadius: 30,
-                                elevation: 15,
-                                alignItems: "center",
-                            }}
+                            className="bg-white rounded-[35px] py-[35px] px-[25px] w-full mt-[35px] items-center"
+                            style={styles.premiumShadow}
                         >
-                            <Text style={{ fontSize: 13, fontWeight: "800", color: "#BBB", marginBottom: 25, letterSpacing: 2 }}>
+                            <Text className="text-[13px] font-[800] text-[#BBB] mb-[25px] tracking-[2px]">
                                 ENTER 6-DIGIT CODE
                             </Text>
 
@@ -171,25 +159,17 @@ export default function VerificationScreen({
                             <TouchableOpacity
                                 activeOpacity={1}
                                 onPress={() => otpInputRef.current?.focus()}
-                                style={{ flexDirection: "row", alignItems: "center", marginBottom: 10 }}
+                                className="flex-row items-center mb-[10px]"
                             >
                                 {Array.from({ length: 6 }).map((_, i) => {
                                     const isActive = otp.length === i;
                                     const isFilled = otp.length > i;
                                     return (
-                                        <View key={i} style={{
-                                            width: 42, height: 55,
-                                            borderRadius: 14,
-                                            marginHorizontal: 4,
-                                            backgroundColor: isFilled ? "#FFF0F5" : "#F8F9FA",
-                                            borderWidth: isActive ? 2.5 : 1.5,
-                                            borderColor: isActive ? "#FF1493" : isFilled ? "#FF69B4" : "#E9ECEF",
-                                            justifyContent: "center", alignItems: "center",
-                                        }}>
+                                        <View key={i} className={`w-[42px] h-[55px] rounded-[14px] mx-[4px] justify-center items-center ${isActive ? 'border-[2.5px]' : 'border-[1.5px]'} ${isFilled ? 'bg-[#FFF0F5]' : 'bg-[#F8F9FA]'} ${isActive ? 'border-[#FF1493]' : isFilled ? 'border-[#FF69B4]' : 'border-[#E9ECEF]'}`}>
                                             {isFilled ? (
-                                                <Text style={{ fontSize: 24, fontWeight: "900", color: "#333" }}>{otp[i]}</Text>
+                                                <Text className="text-[24px] font-black text-[#333]">{otp[i]}</Text>
                                             ) : isActive ? (
-                                                <View style={{ width: 2, height: 22, backgroundColor: "#FF1493" }} />
+                                                <View className="w-[2px] h-[22px] bg-[#FF1493]" />
                                             ) : null}
                                         </View>
                                     );
@@ -205,14 +185,14 @@ export default function VerificationScreen({
                                 }}
                                 keyboardType="number-pad"
                                 maxLength={6}
-                                style={{ position: "absolute", opacity: 0, height: 0, width: 0 }}
+                                className="absolute opacity-0 h-0 w-0"
                                 autoFocus
                             />
 
                             {error ? (
-                                <Animated.View entering={FadeInDown} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 15, backgroundColor: '#FEF2F2', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10 }}>
+                                <Animated.View entering={FadeInDown} className="flex-row items-center mt-[15px] bg-[#FEF2F2] px-[12px] py-[8px] rounded-[10px]">
                                     <Ionicons name="alert-circle" size={16} color="#EF4444" style={{ marginRight: 6 }} />
-                                    <Text style={{ color: "#EF4444", fontSize: 12, fontWeight: "700" }}>{error}</Text>
+                                    <Text className="text-[#EF4444] text-[12px] font-bold">{error}</Text>
                                 </Animated.View>
                             ) : <View style={{ height: 20 }} />}
 
@@ -220,11 +200,8 @@ export default function VerificationScreen({
                                 activeOpacity={0.8}
                                 onPress={handleVerify}
                                 disabled={loading || otp.length < 6}
+                                className={`w-full h-[58px] rounded-[20px] justify-center items-center mt-[15px] ${otp.length < 6 ? 'bg-[#FFD6EF]' : 'bg-[#FF1493]'}`}
                                 style={{
-                                    width: "100%", height: 58, borderRadius: 20,
-                                    backgroundColor: otp.length < 6 ? "#FFD6EF" : "#FF1493",
-                                    justifyContent: "center", alignItems: "center",
-                                    marginTop: 15,
                                     shadowColor: "#FF1493",
                                     shadowOffset: { width: 0, height: 10 },
                                     shadowOpacity: otp.length < 6 ? 0 : 0.3,
@@ -235,22 +212,22 @@ export default function VerificationScreen({
                                 {loading ? (
                                     <ActivityIndicator color="#fff" />
                                 ) : (
-                                    <Text style={{ color: "#fff", fontWeight: "900", fontSize: 17, letterSpacing: 1 }}>
+                                    <Text className="text-white font-black text-[17px] tracking-[1px]">
                                         VERIFY NOW
                                     </Text>
                                 )}
                             </TouchableOpacity>
 
                             {/* Resend Logic with Timer */}
-                            <View style={{ marginTop: 25, alignItems: "center" }}>
+                            <View className="mt-[25px] items-center">
                                 {canResend ? (
-                                    <TouchableOpacity onPress={handleResend} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <TouchableOpacity onPress={handleResend} className="flex-row items-center">
                                         <Feather name="refresh-cw" size={14} color="#FF1493" style={{ marginRight: 6 }} />
-                                        <Text style={{ color: "#FF1493", fontWeight: "800", fontSize: 14 }}>Resend New Code</Text>
+                                        <Text className="text-[#FF1493] font-[800] text-[14px]">Resend New Code</Text>
                                     </TouchableOpacity>
                                 ) : (
-                                    <Text style={{ color: "#BBB", fontSize: 14, fontWeight: '600' }}>
-                                        Resend code in <Text style={{ color: '#FF1493', fontWeight: '800' }}>{timer}s</Text>
+                                    <Text className="text-[#BBB] text-[14px] font-semibold">
+                                        Resend code in <Text className="text-[#FF1493] font-[800]">{timer}s</Text>
                                     </Text>
                                 )}
                             </View>
@@ -259,10 +236,10 @@ export default function VerificationScreen({
                         {/* Elegant Back Navigation */}
                         <TouchableOpacity
                             onPress={onGoBack}
-                            style={{ marginTop: 30, padding: 10 }}
+                            className="mt-[30px] p-[10px]"
                             activeOpacity={0.7}
                         >
-                            <Text style={{ color: "rgba(255,255,255,0.7)", fontWeight: "800", fontSize: 14, textDecorationLine: 'underline' }}>
+                            <Text className="text-white/70 font-[800] text-[14px] underline">
                                 Use a different email address
                             </Text>
                         </TouchableOpacity>
@@ -283,11 +260,11 @@ export default function VerificationScreen({
 }
 
 const styles = StyleSheet.create({
-    premiumIconCircle: {
-        width: ms(100), height: ms(100), borderRadius: ms(50),
-        backgroundColor: "rgba(255,255,255,0.2)",
-        justifyContent: "center", alignItems: "center",
-        marginBottom: vs(25),
-        borderWidth: 2, borderColor: "rgba(255,255,255,0.3)",
-    },
+    premiumShadow: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 20 },
+        shadowOpacity: 0.15,
+        shadowRadius: 30,
+        elevation: 15,
+    }
 });

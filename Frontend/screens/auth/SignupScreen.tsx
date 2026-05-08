@@ -12,7 +12,7 @@ import {
     KeyboardAvoidingView,
 } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { s, vs, ms } from '../../lib/scaling';
+import { vs, ms } from '../../lib/scaling';
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { supabase } from "../../lib/supabase";
 import { LinearGradient } from "expo-linear-gradient";
@@ -28,14 +28,14 @@ import Animated, {
 } from "react-native-reanimated";
 
 // Reusable animated button for tactile feedback
-const ScaleButton = ({ children, onPress, style }: any) => {
+const ScaleButton = ({ children, onPress, style, className }: any) => {
     const scale = useSharedValue(1);
     const animatedStyle = useAnimatedStyle(() => ({
         transform: [{ scale: scale.value }],
     }));
 
     return (
-        <Animated.View style={[animatedStyle, style]}>
+        <Animated.View style={[animatedStyle, style]} className={className}>
             <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={onPress}
@@ -139,7 +139,6 @@ export default function SignupScreen({
             setOtpError(error.message);
             setOtp('');
         }
-        // ✅ On success: App.tsx onAuthStateChange fires → routes dashboard
     };
 
     const handleResendOtp = async () => {
@@ -183,7 +182,6 @@ export default function SignupScreen({
         setSubmitting(false);
 
         if (error) { 
-            // Silently ignore rate limits during development if they specifically asked to remove the popup
             if (!error.message.includes("rate limit")) {
                 showError("Signup Failed", error.message); 
                 return;
@@ -192,16 +190,11 @@ export default function SignupScreen({
         }
 
         if (signUpData?.user && !signUpData.session) {
-            // Email confirmation required -> delegate to App.tsx / VerificationScreen
             onNeedsVerification(email, role || 'Donor');
         } else if (signUpData?.user && signUpData.session) {
-            // Already logged in (Auto-confirm) - App.tsx handles navigation via session
         } else {
-            // Possible already registered but unconfirmed? 
-            // In development, sometimes this happens. Let's try to verify anyway.
             onNeedsVerification(email, role || 'Donor');
         }
-        // If auto-confirmed (email confirm disabled), App.tsx listener handles routing
     };
 
     const [currentStep, setCurrentStep] = useState<1 | 2>(1);
@@ -224,19 +217,19 @@ export default function SignupScreen({
     if (pickingGender) {
         return (
             <LinearGradient colors={['#FFF4F8', '#FFE6F0']} style={styles.root}>
-                <View style={styles.innerContainer}>
-                    <Text style={[styles.title, { marginBottom: 24 }]}>Select Gender</Text>
+                <View className="flex-1 px-[24px] justify-center">
+                    <Text className="text-[32px] font-[900] text-[#1a1a1a] text-center tracking-[-0.5px] mb-[24px]">Select Gender</Text>
                     {GENDERS.map((item) => (
                         <TouchableOpacity
                             key={item}
-                            style={styles.genderItem}
+                            className="p-[16px] w-full border-b-[1px] border-b-[#FFD6EF] items-center"
                             onPress={() => { setGender(item); setPickingGender(false); }}
                         >
-                            <Text style={styles.genderItemText}>{item}</Text>
+                            <Text className="text-black text-[18px] font-bold">{item}</Text>
                         </TouchableOpacity>
                     ))}
-                    <TouchableOpacity onPress={() => setPickingGender(false)} style={{ marginTop: 24, padding: 12 }}>
-                        <Text style={{ color: '#888', fontSize: 16, fontWeight: 'bold' }}>Cancel</Text>
+                    <TouchableOpacity onPress={() => setPickingGender(false)} className="mt-[24px] p-[12px] items-center">
+                        <Text className="text-[#888] text-[16px] font-bold">Cancel</Text>
                     </TouchableOpacity>
                 </View>
             </LinearGradient>
@@ -248,32 +241,32 @@ export default function SignupScreen({
         <LinearGradient colors={['#FFF4F8', '#FFEBEB']} style={styles.root}>
             <KeyboardAvoidingView 
                 behavior={Platform.OS === "ios" ? "padding" : "height"} 
-                style={{ flex: 1 }}
+                className="flex-1"
             >
                 <ScrollView
-                style={{ flex: 1 }}
-                contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + vs(20) }]}
+                className="flex-1"
+                contentContainerStyle={{ flexGrow: 1, paddingHorizontal: ms(24), paddingBottom: vs(48), paddingTop: insets.top + vs(20) }}
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
             >
                 {/* Header */}
-                <View style={styles.header}>
-                    <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
-                    <Text style={styles.title}>Welcome!</Text>
-                    <Text style={styles.subtitle}>Step {currentStep} of 2</Text>
+                <View className="items-center mb-[32px]">
+                    <Image source={require('../../assets/logo.png')} className="w-[80px] h-[80px] mb-[12px]" resizeMode="contain" />
+                    <Text className="text-[32px] font-[900] text-[#1a1a1a] text-center tracking-[-0.5px]">Welcome!</Text>
+                    <Text className="text-[15px] text-[#FF1493] font-[800] text-center mt-[4px] uppercase tracking-[1px]">Step {currentStep} of 2</Text>
                 </View>
 
                 {currentStep === 1 ? (
                     <Animated.View layout={Layout.springify()} entering={FadeInRight.delay(200)}>
-                        <View style={styles.glassCard}>
-                            <Text style={styles.sectionLabel}>ACCOUNT INFO</Text>
+                        <View className="bg-white rounded-[30px] p-[24px] border-[1px] border-[#FFF0F5]" style={styles.premiumShadow}>
+                            <Text className="text-[11px] font-black text-[#999] tracking-[1.5px] mb-[16px]">ACCOUNT INFO</Text>
 
                             {/* Full Name */}
-                            <View style={styles.fieldWrap}>
-                                <View style={styles.inputBox}>
+                            <View className="relative">
+                                <View className="flex-row items-center border-[1.5px] border-[#FFD6EF] rounded-[15px] h-[56px] px-[16px] bg-[#FFF9FB]">
                                     <Ionicons name="person-outline" size={20} color="#FF1493" style={{ marginRight: 10 }} />
                                     <TextInput 
-                                        style={styles.input} 
+                                        className="text-black text-[15px] h-[56px] flex-1 font-semibold" 
                                         value={name} 
                                         onChangeText={setName} 
                                         autoCapitalize="words" 
@@ -283,13 +276,12 @@ export default function SignupScreen({
                             </View>
 
                             {/* Email */}
-                            <View style={[styles.fieldWrap, { marginTop: 16 }]}>
-                                <View style={[styles.inputBox, {
-                                    borderColor: emailError ? '#e53e3e' : emailTouched && isEmailValid ? '#38a169' : '#FFD6EF',
-                                }]}>
+                            <View className="relative mt-[16px]">
+                                <View className="flex-row items-center border-[1.5px] rounded-[15px] h-[56px] px-[16px] bg-[#FFF9FB]"
+                                    style={{ borderColor: emailError ? '#e53e3e' : emailTouched && isEmailValid ? '#38a169' : '#FFD6EF' }}>
                                     <Ionicons name="mail-outline" size={20} color="#FF1493" style={{ marginRight: 10 }} />
                                     <TextInput
-                                        style={[styles.input, { flex: 1 }]}
+                                        className="text-black text-[15px] h-[56px] flex-1 font-semibold"
                                         keyboardType="email-address"
                                         value={email}
                                         onChangeText={(t) => { setEmail(t); setEmailTouched(true); }}
@@ -298,17 +290,16 @@ export default function SignupScreen({
                                         placeholder="Email Address"
                                     />
                                 </View>
-                                {emailError && <Text style={styles.errorText}>Enter a valid email</Text>}
+                                {emailError && <Text className="text-[#e53e3e] text-[11px] font-bold mt-[4px] ml-[4px]">Enter a valid email</Text>}
                             </View>
 
                             {/* Password */}
-                            <View style={[styles.fieldWrap, { marginTop: 16 }]}>
-                                <View style={[styles.inputBox, {
-                                    borderColor: pwStrength.level === 3 ? '#38a169' : pwStrength.level === 2 ? '#dd6b20' : pwStrength.level === 1 ? '#e53e3e' : '#FFD6EF',
-                                }]}>
+                            <View className="relative mt-[16px]">
+                                <View className="flex-row items-center border-[1.5px] rounded-[15px] h-[56px] px-[16px] bg-[#FFF9FB]"
+                                    style={{ borderColor: pwStrength.level === 3 ? '#38a169' : pwStrength.level === 2 ? '#dd6b20' : pwStrength.level === 1 ? '#e53e3e' : '#FFD6EF' }}>
                                     <Ionicons name="lock-closed-outline" size={20} color="#FF1493" style={{ marginRight: 10 }} />
                                     <TextInput 
-                                        style={styles.input} 
+                                        className="text-black text-[15px] h-[56px] flex-1 font-semibold" 
                                         secureTextEntry 
                                         value={password} 
                                         onChangeText={setPassword} 
@@ -317,53 +308,54 @@ export default function SignupScreen({
                                 </View>
                                 {/* Strength Bar */}
                                 {password.length > 0 && (
-                                    <View style={{ marginTop: 8 }}>
-                                        <View style={{ flexDirection: 'row', gap: 4 }}>
+                                    <View className="mt-[8px]">
+                                        <View className="flex-row gap-[4px]">
                                             {[1, 2, 3].map((seg) => (
-                                                <View key={seg} style={{ flex: 1, height: 4, borderRadius: 4, backgroundColor: pwStrength.level >= seg ? pwStrength.color : '#EEE' }} />
+                                                <View key={seg} className="flex-1 h-[4px] rounded-[4px]" style={{ backgroundColor: pwStrength.level >= seg ? pwStrength.color : '#EEE' }} />
                                             ))}
                                         </View>
                                     </View>
                                 )}
                             </View>
 
-                            <Text style={[styles.sectionLabel, { marginTop: 24 }]}>I WANT TO BE A...</Text>
-                            <View style={styles.roleGrid}>
+                            <Text className="text-[11px] font-black text-[#999] tracking-[1.5px] mb-[16px] mt-[24px]">I WANT TO BE A...</Text>
+                            <View className="flex-row gap-[16px]">
                                 {(["Donor", "Recipient"] as const).map((r) => (
                                     <TouchableOpacity 
                                         key={r} 
-                                        style={[styles.roleCard, role === r && styles.roleCardActive]} 
+                                        className={`flex-1 rounded-[20px] py-[20px] items-center border-[1.5px] ${role === r ? 'bg-white border-[#FF1493]' : 'bg-[#FFF9FB] border-[#FFD6EF]'}`}
+                                        style={role === r ? styles.activeRoleShadow : undefined}
                                         onPress={() => setRole(r)}
                                         activeOpacity={0.9}
                                     >
-                                        <View style={[styles.roleIconBg, role === r && styles.roleIconBgActive]}>
+                                        <View className={`w-[60px] h-[60px] rounded-[30px] justify-center items-center mb-[12px] ${role === r ? 'bg-[#FF1493]' : 'bg-white'}`}>
                                             <MaterialCommunityIcons 
                                                 name={r === 'Donor' ? 'heart-plus' : 'account-heart'} 
                                                 size={32} 
                                                 color={role === r ? '#fff' : '#FF66B2'} 
                                             />
                                         </View>
-                                        <Text style={[styles.roleText, role === r && styles.roleTextActive]}>{r}</Text>
+                                        <Text className={`text-[14px] font-extrabold ${role === r ? 'text-[#1a1a1a]' : 'text-[#999]'}`}>{r}</Text>
                                     </TouchableOpacity>
                                 ))}
                             </View>
 
-                            <ScaleButton style={[styles.signUpBtn, { marginTop: 32 }]} onPress={handleNext}>
-                                <Text style={styles.signUpBtnText}>Continue</Text>
+                            <ScaleButton className="bg-[#FF1493] h-[56px] rounded-[20px] justify-center items-center mt-[32px]" onPress={handleNext}>
+                                <Text className="text-white font-black text-[16px]">Continue</Text>
                             </ScaleButton>
                         </View>
                     </Animated.View>
                 ) : (
                     <Animated.View layout={Layout.springify()} entering={FadeInRight.delay(200)}>
-                        <View style={styles.glassCard}>
-                            <Text style={styles.sectionLabel}>CONTACT & LOCATION</Text>
+                        <View className="bg-white rounded-[30px] p-[24px] border-[1px] border-[#FFF0F5]" style={styles.premiumShadow}>
+                            <Text className="text-[11px] font-black text-[#999] tracking-[1.5px] mb-[16px]">CONTACT & LOCATION</Text>
 
                             {/* Phone */}
-                            <View style={styles.fieldWrap}>
-                                <View style={styles.inputBox}>
+                            <View className="relative">
+                                <View className="flex-row items-center border-[1.5px] border-[#FFD6EF] rounded-[15px] h-[56px] px-[16px] bg-[#FFF9FB]">
                                     <Ionicons name="call-outline" size={20} color="#FF1493" style={{ marginRight: 10 }} />
                                     <TextInput
-                                        style={styles.input}
+                                        className="text-black text-[15px] h-[56px] flex-1 font-semibold"
                                         keyboardType="phone-pad"
                                         value={phone}
                                         onChangeText={(t) => setPhone(t.replace(/[^0-9]/g, ''))}
@@ -374,11 +366,11 @@ export default function SignupScreen({
                             </View>
 
                             {/* Exact Address */}
-                            <View style={[styles.fieldWrap, { marginTop: 16 }]}>
-                                <View style={styles.inputBox}>
+                            <View className="relative mt-[16px]">
+                                <View className="flex-row items-center border-[1.5px] border-[#FFD6EF] rounded-[15px] h-[56px] px-[16px] bg-[#FFF9FB]">
                                     <Ionicons name="map-outline" size={20} color="#FF1493" style={{ marginRight: 10 }} />
                                     <TextInput
-                                        style={styles.input}
+                                        className="text-black text-[15px] h-[56px] flex-1 font-semibold"
                                         value={address}
                                         onChangeText={setAddress}
                                         placeholder="Address (House No., Street)"
@@ -387,54 +379,55 @@ export default function SignupScreen({
                             </View>
 
                             {/* City & Barangay */}
-                            <View style={[styles.row, { marginTop: 16, gap: 12 }]}>
-                                <View style={[styles.inputBox, { flex: 1 }]}>
-                                    <TextInput style={styles.input} value={city} onChangeText={setCity} placeholder="City" />
+                            <View className="flex-row items-center mt-[16px] gap-[12px]">
+                                <View className="flex-1 flex-row items-center border-[1.5px] border-[#FFD6EF] rounded-[15px] h-[56px] px-[16px] bg-[#FFF9FB]">
+                                    <TextInput className="text-black text-[15px] h-[56px] flex-1 font-semibold" value={city} onChangeText={setCity} placeholder="City" />
                                 </View>
-                                <View style={[styles.inputBox, { flex: 1 }]}>
-                                    <TextInput style={styles.input} value={barangay} onChangeText={setBarangay} placeholder="Barangay" />
+                                <View className="flex-1 flex-row items-center border-[1.5px] border-[#FFD6EF] rounded-[15px] h-[56px] px-[16px] bg-[#FFF9FB]">
+                                    <TextInput className="text-black text-[15px] h-[56px] flex-1 font-semibold" value={barangay} onChangeText={setBarangay} placeholder="Barangay" />
                                 </View>
                             </View>
 
-                            <View style={[styles.row, { marginTop: 16, gap: 12 }]}>
-                                <View style={[styles.inputBox, { flex: 1 }]}>
+                            <View className="flex-row items-center mt-[16px] gap-[12px]">
+                                <View className="flex-1 flex-row items-center border-[1.5px] border-[#FFD6EF] rounded-[15px] h-[56px] px-[16px] bg-[#FFF9FB]">
                                     <TextInput 
-                                        style={styles.input} 
+                                        className="text-black text-[15px] h-[56px] flex-1 font-semibold" 
                                         value={ageText} 
                                         onChangeText={setAgeText}
                                         keyboardType="number-pad" 
+                                        maxLength={3}
                                         placeholder="Age"
                                     />
                                 </View>
                                 <TouchableOpacity
-                                    style={[styles.inputBox, { flex: 1.5, justifyContent: 'space-between' }]}
+                                    className="flex-[1.5] flex-row items-center border-[1.5px] border-[#FFD6EF] rounded-[15px] h-[56px] px-[16px] bg-[#FFF9FB] justify-between"
                                     onPress={() => setPickingGender(true)}
                                 >
-                                    <Text style={{ color: gender ? '#000' : '#888', fontSize: 15 }}>{gender || 'Gender'}</Text>
+                                    <Text className={`text-[15px] ${gender ? 'text-black' : 'text-[#888]'}`}>{gender || 'Gender'}</Text>
                                     <Ionicons name="chevron-down" size={16} color="#FF1493" />
                                 </TouchableOpacity>
                             </View>
 
-                            <View style={{ flexDirection: 'row', gap: 12, marginTop: 32 }}>
+                            <View className="flex-row gap-[12px] mt-[32px]">
                                 <ScaleButton 
-                                    style={[styles.signUpBtn, { flex: 1, backgroundColor: '#EEE' }]} 
+                                    className="flex-1 h-[56px] rounded-[20px] justify-center items-center bg-[#EEE]"
                                     onPress={() => setCurrentStep(1)}
                                 >
-                                    <Text style={[styles.signUpBtnText, { color: '#888' }]}>Back</Text>
+                                    <Text className="text-[#888] font-black text-[16px]">Back</Text>
                                 </ScaleButton>
                                 <ScaleButton 
-                                    style={[styles.signUpBtn, { flex: 2 }]} 
+                                    className="flex-[2] h-[56px] rounded-[20px] justify-center items-center bg-[#FF1493]"
                                     onPress={handleSignUp}
                                 >
-                                    {submitting ? <ActivityIndicator color="#fff" /> : <Text style={styles.signUpBtnText}>Complete Sign Up</Text>}
+                                    {submitting ? <ActivityIndicator color="#fff" /> : <Text className="text-white font-black text-[16px]">Complete Sign Up</Text>}
                                 </ScaleButton>
                             </View>
                         </View>
                     </Animated.View>
                 )}
 
-                    <TouchableOpacity onPress={onSwitchToLogin} activeOpacity={0.8} style={styles.switchLink}>
-                        <Text style={styles.switchLinkText}>Already have an account? <Text style={{ color: '#FF1493' }}>Log In</Text></Text>
+                    <TouchableOpacity onPress={onSwitchToLogin} activeOpacity={0.8} className="self-center mt-[24px] p-[8px]">
+                        <Text className="text-[#888] font-bold text-[14px]">Already have an account? <Text className="text-[#FF1493]">Log In</Text></Text>
                     </TouchableOpacity>
                 </ScrollView>
             </KeyboardAvoidingView>
@@ -452,87 +445,18 @@ export default function SignupScreen({
 
 const styles = StyleSheet.create({
     root: { flex: 1 },
-    scrollContent: { 
-        flexGrow: 1, 
-        paddingHorizontal: ms(24), 
-        paddingBottom: vs(48) 
-    },
-    innerContainer: { flex: 1, paddingHorizontal: ms(24), justifyContent: 'center' },
-
-    // Header
-    header: { alignItems: 'center', marginBottom: 32 },
-    logo: { width: 80, height: 80, marginBottom: 12 },
-    title: { fontSize: 32, fontWeight: '900', color: '#1a1a1a', textAlign: 'center', letterSpacing: -0.5 },
-    subtitle: { fontSize: 15, color: '#FF1493', fontWeight: '800', textAlign: 'center', marginTop: 4, textTransform: 'uppercase', letterSpacing: 1 },
-
-    // Premium Card
-    glassCard: { 
-        backgroundColor: '#fff', 
-        borderRadius: 30, 
-        padding: 24, 
+    // Premium Shadows Retained
+    premiumShadow: { 
         shadowColor: '#FF66B2', 
         shadowOffset: { width: 0, height: 10 }, 
         shadowOpacity: 0.1, 
         shadowRadius: 20, 
         elevation: 5,
-        borderWidth: 1,
-        borderColor: '#FFF0F5'
     },
-    sectionLabel: { fontSize: 11, fontWeight: '900', color: '#999', letterSpacing: 1.5, marginBottom: 16 },
-
-    // Form fields
-    fieldWrap: { position: 'relative' },
-    inputBox: { 
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderWidth: 1.5, 
-        borderColor: '#FFD6EF', 
-        borderRadius: 15, 
-        height: 56, 
-        paddingHorizontal: 16, 
-        backgroundColor: '#FFF9FB' 
-    },
-    input: { color: '#000', fontSize: 15, height: 56, flex: 1, fontWeight: '600' },
-    errorText: { color: '#e53e3e', fontSize: 11, fontWeight: '700', marginTop: 4, marginLeft: 4 },
-
-    // Role Selection
-    roleGrid: { flexDirection: 'row', gap: 16 },
-    roleCard: { 
-        flex: 1, 
-        backgroundColor: '#FFF9FB', 
-        borderRadius: 20, 
-        paddingVertical: 20, 
-        alignItems: 'center',
-        borderWidth: 1.5,
-        borderColor: '#FFD6EF'
-    },
-    roleCardActive: { 
-        backgroundColor: '#fff', 
-        borderColor: '#FF1493',
+    activeRoleShadow: { 
         shadowColor: '#FF1493',
         shadowOpacity: 0.1,
         shadowRadius: 10,
         elevation: 3
     },
-    roleIconBg: { width: 60, height: 60, borderRadius: 30, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
-    roleIconBgActive: { backgroundColor: '#FF1493' },
-    roleText: { fontSize: 14, fontWeight: '800', color: '#999' },
-    roleTextActive: { color: '#1a1a1a' },
-
-    // Layout
-    row: { flexDirection: 'row', alignItems: 'center' },
-
-    // Sign Up button
-    signUpBtn: { backgroundColor: '#FF1493', height: 56, borderRadius: 20, justifyContent: 'center', alignItems: 'center' },
-    signUpBtnText: { color: '#fff', fontWeight: '900', fontSize: 16 },
-    switchLink: { alignSelf: 'center', marginTop: 24, padding: 8 },
-    switchLinkText: { color: '#888', fontWeight: '700', fontSize: 14 },
-
-    // OTP
-    iconCircle: { width: 80, height: 80, borderRadius: 40, backgroundColor: '#FFF0F5', justifyContent: 'center', alignItems: 'center', alignSelf: 'center', marginBottom: 20 },
-
-    // Gender picker items
-    genderItem: { padding: 16, width: '100%', borderBottomWidth: 1, borderBottomColor: '#FFD6EF', alignItems: 'center' },
-    genderItemText: { color: '#000', fontSize: 18, fontWeight: '700' },
 });
-

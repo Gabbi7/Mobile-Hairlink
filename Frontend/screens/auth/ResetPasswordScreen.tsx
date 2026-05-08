@@ -26,6 +26,8 @@ export default function ResetPasswordScreen({ onPasswordUpdated }: ResetPassword
     const insets = useSafeAreaInsets();
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [updating, setUpdating] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -109,15 +111,19 @@ export default function ResetPasswordScreen({ onPasswordUpdated }: ResetPassword
                                 <Text style={styles.cardInfoLabel}>NEW PASSWORD</Text>
                                 <View style={[styles.inputBox, {
                                     borderColor: pwStrength.level === 3 ? '#38a169' : pwStrength.level === 2 ? '#dd6b20' : pwStrength.level === 1 ? '#e53e3e' : '#D1D1D1',
+                                    flexDirection: 'row', alignItems: 'center'
                                 }]}>
                                     <TextInput 
                                         style={styles.input} 
-                                        secureTextEntry 
+                                        secureTextEntry={!showPassword} 
                                         value={password} 
                                         onChangeText={(t) => { setPassword(t); setErrorMsg(""); }} 
                                         placeholder="Enter new password"
                                         placeholderTextColor="#bbb"
                                     />
+                                    <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={{ padding: 4 }}>
+                                        <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color="#BBB" />
+                                    </TouchableOpacity>
                                 </View>
                             </View>
 
@@ -139,15 +145,18 @@ export default function ResetPasswordScreen({ onPasswordUpdated }: ResetPassword
                             {/* Confirm Password */}
                             <View style={styles.fieldWrap}>
                                 <Text style={styles.cardInfoLabel}>CONFIRM PASSWORD</Text>
-                                <View style={[styles.inputBox, { borderColor: '#D1D1D1' }]}>
+                                <View style={[styles.inputBox, { borderColor: '#D1D1D1', flexDirection: 'row', alignItems: 'center' }]}>
                                     <TextInput 
                                         style={styles.input} 
-                                        secureTextEntry 
+                                        secureTextEntry={!showConfirmPassword} 
                                         value={confirmPassword} 
                                         onChangeText={(t) => { setConfirmPassword(t); setErrorMsg(""); }} 
                                         placeholder="Re-enter new password"
                                         placeholderTextColor="#bbb"
                                     />
+                                    <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)} style={{ padding: 4 }}>
+                                        <Ionicons name={showConfirmPassword ? "eye-off-outline" : "eye-outline"} size={20} color="#BBB" />
+                                    </TouchableOpacity>
                                 </View>
                             </View>
 

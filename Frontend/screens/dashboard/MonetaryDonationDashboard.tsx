@@ -27,7 +27,7 @@ interface MonetaryDonationDashboardProps {
 
 export default function MonetaryDonationDashboard({ onBack, onSuccess, role = 'Donor' }: MonetaryDonationDashboardProps) {
     const isRecipient = role === 'Recipient';
-    
+
     // Theme Colors
     const themeColor = isRecipient ? '#9B59B6' : '#FF1493';
     const themeMedium = isRecipient ? '#8E44AD' : '#FF66B2';
@@ -111,13 +111,13 @@ export default function MonetaryDonationDashboard({ onBack, onSuccess, role = 'D
     const insets = useSafeAreaInsets();
 
     return (
-        <KeyboardAvoidingView 
+        <KeyboardAvoidingView
             className="flex-1"
             style={{ backgroundColor: themeBg, paddingTop: insets.top }}
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
             <StatusBar style="dark" />
-            
+
             <View className="flex-row items-center justify-between px-[16px] py-[14px]">
                 <TouchableOpacity onPress={onBack} className="w-[40px] h-[40px] items-center justify-center rounded-full bg-black/5">
                     <Ionicons name="arrow-back" size={ms(26)} color="#1a1a1a" />
@@ -128,7 +128,7 @@ export default function MonetaryDonationDashboard({ onBack, onSuccess, role = 'D
 
             <ScrollView contentContainerStyle={{ paddingHorizontal: ms(20), paddingBottom: vs(40) }} showsVerticalScrollIndicator={false}>
                 <Text className="text-[28px] font-black text-[#1a1a1a] text-center mt-[10px]">Monetary Donation</Text>
-                
+
                 <View className="border-[1.5px] rounded-[20px] p-[18px] mt-[24px] mb-[24px]" style={{ borderColor: themeMedium }}>
                     <View className="flex-row items-center">
                         <Ionicons name="information-circle-outline" size={ms(22)} color={themeColor} />
@@ -151,15 +151,15 @@ export default function MonetaryDonationDashboard({ onBack, onSuccess, role = 'D
                     <Text className="text-[20px] font-black text-[#1a1a1a] mb-[16px]">Donation details</Text>
 
                     <Text className="text-[14px] font-extrabold text-[#444] mb-[8px]">Select an amount</Text>
-                    <View className="flex-row flex-wrap gap-[10px] mb-[16px]">
+                    <View className="flex-row justify-between gap-[6px] mb-[16px]">
                         {amounts.map((v) => (
                             <TouchableOpacity
                                 key={v}
-                                className={`border-[1.5px] rounded-[12px] p-[12px] flex-[0.47] items-center ${amount === v ? 'bg-transparent' : ''}`}
+                                className="flex-1 border-[1.5px] rounded-[12px] py-[10px] items-center"
                                 style={{ borderColor: amount === v ? themeMedium : themeLight, backgroundColor: amount === v ? themeMedium : 'transparent' }}
                                 onPress={() => { setAmount(v); setCustomAmount(''); setNumAmount(v.toString()); }}
                             >
-                                <Text className={`text-[18px] font-extrabold ${amount === v ? 'text-white' : 'text-[#888]'}`}>₱ {v}</Text>
+                                <Text className={`text-[14px] font-black ${amount === v ? 'text-white' : 'text-[#888]'}`}>₱{v}</Text>
                             </TouchableOpacity>
                         ))}
                     </View>
@@ -237,8 +237,16 @@ export default function MonetaryDonationDashboard({ onBack, onSuccess, role = 'D
                     </View>
 
                     <TouchableOpacity
-                        className="rounded-[24px] h-[56px] justify-center items-center shadow-lg"
-                        style={{ backgroundColor: themeMedium, shadowColor: themeColor, opacity: loading ? 0.7 : 1 }}
+                        className="rounded-[24px] h-[52px] justify-center items-center"
+                        style={{ 
+                            backgroundColor: themeMedium, 
+                            shadowColor: themeColor, 
+                            shadowOffset: { width: 0, height: 6 },
+                            shadowOpacity: 0.35,
+                            shadowRadius: 9,
+                            elevation: 4,
+                            opacity: loading ? 0.7 : 1 
+                        }}
                         onPress={handleDonate}
                         disabled={loading}
                     >

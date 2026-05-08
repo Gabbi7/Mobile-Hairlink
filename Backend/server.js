@@ -22,5 +22,15 @@ app.get('/', (req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`HairLink Express API running on port ${PORT}`);
+  console.log(`✅ HairLink Express API running on port ${PORT}`);
+});
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error('🔥 GLOBAL ERROR CAUGHT:', err.stack);
+  res.status(500).json({ 
+    message: 'Internal Server Error', 
+    error: err.message,
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+  });
 });

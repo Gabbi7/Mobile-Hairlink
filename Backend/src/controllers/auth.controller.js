@@ -3,62 +3,8 @@ const jwt = require('jsonwebtoken');
 const supabase = require('../config/supabase');
 
 exports.login = async (req, res) => {
-  const { email, password, device_name } = req.body;
-
-  if (!email || !password) {
-    return res.status(422).json({
-      message: 'The given data was invalid.',
-      errors: {
-        email: ['The email and password fields are required.']
-      }
-    });
-  }
-
-  const { data: user, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('email', email)
-    .single();
-
-  if (error || !user) {
-    return res.status(422).json({
-      message: 'The given data was invalid.',
-      errors: {
-        email: ['The provided credentials are incorrect.']
-      }
-    });
-  }
-
-  const passwordMatch = await bcrypt.compare(password, user.password);
-  
-  if (!passwordMatch) {
-    return res.status(422).json({
-      message: 'The given data was invalid.',
-      errors: {
-        email: ['The provided credentials are incorrect.']
-      }
-    });
-  }
-
-  if (!user.is_active) {
-    return res.status(403).json({ message: 'Account is deactivated. Please contact support.' });
-  }
-
-  const token = jwt.sign(
-    { id: user.id, email: user.email },
-    process.env.JWT_SECRET || 'hairlink_secret_key_2026',
-    { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
-  );
-
-  // Remove password from user object
-  const { password: _, ...userWithoutPassword } = user;
-  
-  // Add dynamic properties if needed (star_points placeholder)
-  userWithoutPassword.star_points = 0; 
-
-  res.json({
-    token: token,
-    user: userWithoutPassword
+  return res.status(400).json({
+    message: 'This login endpoint is deprecated. The mobile app now authenticates directly via Supabase Auth.'
   });
 };
 
@@ -68,8 +14,43 @@ exports.logout = (req, res) => {
 };
 
 exports.me = (req, res) => {
-  // User is already attached to req by authMiddleware
-  const user = req.user;
-  user.star_points = 0; // Placeholder
-  res.json(user);
+  res.json(req.user);
+};
+
+exports.updateProfile = async (req, res) => {
+  try {
+    const { first_name, last_name, phone, role } = req.body;
+    const userId = req.user.id;
+
+    const { data, error } = await supabase
+      .from('users')
+      .update({
+        first_name: first_name || req.user.first_name,
+        last_name: last_name || req.user.last_name,
+        name: first_name && last_name ? `${first_name} ${last_name}` : req.user.name,
+        phone: phone || req.user.phone,
+        role: role ? role.toLowerCase() : req.user.role,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', userId)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Also update Supabase Auth metadata if role changed
+    if (role) {
+      // First get the latest metadata from Auth
+      const { data: { user: authUser } } = await supabase.auth.admin.getUserById(userId);
+      
+      await supabase.auth.admin.updateUserById(userId, {
+        user_metadata: { ...(authUser?.user_metadata || {}), role: role.toLowerCase() }
+      });
+    }
+
+    res.json(data);
+  } catch (error) {
+    console.error('Update Profile Error:', error);
+    res.status(500).json({ message: 'Failed to update profile' });
+  }
 };

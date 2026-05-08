@@ -276,7 +276,7 @@ export default function DonorDashboard({ onLogout, onRoleChange, userName = 'Don
       >
         <ProfileScreen
           onBack={() => setShowProfile(false)}
-          onLogout={onLogout || (() => {})}
+          onLogout={onLogout || (() => { })}
           onRoleChange={onRoleChange}
         />
       </Animated.View>
@@ -523,11 +523,17 @@ export default function DonorDashboard({ onLogout, onRoleChange, userName = 'Don
         <Animated.View entering={FadeInUp.springify().delay(800)} className="mx-[14px] mb-[30px]">
           <TouchableOpacity activeOpacity={0.9} onPress={() => setShowCalendar(true)}>
             <LinearGradient
-              colors={['#FF66B2', '#FF1493']}
+              colors={['#FF1493', '#FF66B2']}
               start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              className="rounded-[32px] border-2 border-white/10"
-              style={[{ padding: ms(22) }, shadows.event]}
+              end={{ x: 1, y: 1 }}
+              className="border-2 border-white/20"
+              style={[{
+                padding: ms(24),
+                borderTopLeftRadius: ms(25),
+                borderBottomRightRadius: ms(25),
+                borderTopRightRadius: ms(25),
+                borderBottomLeftRadius: ms(25)
+              }, shadows.event]}
             >
               <View className="flex-row justify-between items-center mb-[10px]">
                 <Text className="font-black text-white/80 tracking-[1.5px]" style={{ fontSize: ms(11) }}>UPCOMING EVENT</Text>

@@ -22,6 +22,7 @@ import Animated, {
   SlideInUp, 
   Layout, 
   useAnimatedStyle, 
+  useSharedValue,
   withSpring 
 } from 'react-native-reanimated';
 

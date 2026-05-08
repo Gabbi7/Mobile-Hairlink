@@ -4,6 +4,7 @@ import { View, Text, ActivityIndicator } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from "./lib/api";
+import { supabase } from "./lib/supabase";
 
 import DonorDashboard from "./screens/dashboard/DonorDashboard";
 import RecipientDashboard from "./screens/dashboard/RecipientDashboard";
@@ -63,48 +64,54 @@ export default function App() {
 
 
   useEffect(() => {
-    checkAuthStatus();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      handleSession(session);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      handleSession(session);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const checkAuthStatus = async () => {
-    try {
-      const token = await AsyncStorage.getItem('auth_token');
-      if (token) {
-        // Fetch user from Laravel API
+  const handleSession = async (session: any) => {
+    if (session?.user) {
+      try {
         const response = await api.get('/me');
         const user = response.data;
-        
         let rawRole = user.role || "donor";
         let formattedRole = rawRole.charAt(0).toUpperCase() + rawRole.slice(1).toLowerCase();
         
         setUserName(user.name || user.first_name || formattedRole);
         setUserRole(formattedRole as "Donor" | "Recipient");
         setIsAuthenticated(true);
+      } catch (error) {
+        console.log("Error fetching profile via Express", error);
+        setIsAuthenticated(false);
       }
-    } catch (error) {
-      console.log("Not authenticated or token expired", error);
-      await AsyncStorage.removeItem('auth_token');
-    } finally {
-      setLoading(false);
+    } else {
+      setIsAuthenticated(false);
+      setUserRole(null);
     }
+    setLoading(false);
   };
 
   const handleLoginSuccess = async (role: "Donor" | "Recipient") => {
     setLoading(true);
-    await checkAuthStatus(); 
   };
 
   const handleLogout = async () => {
     setLoading(true);
     try {
-      await api.post('/logout');
+      await supabase.auth.signOut();
     } catch (e) {
-      // Ignore network errors on logout
+      console.log('Error logging out', e);
+    } finally {
+      setIsAuthenticated(false);
+      setUserRole(null);
+      setLoading(false);
     }
-    await AsyncStorage.removeItem('auth_token');
-    setIsAuthenticated(false);
-    setUserRole(null);
-    setLoading(false);
   };
 
   let content;

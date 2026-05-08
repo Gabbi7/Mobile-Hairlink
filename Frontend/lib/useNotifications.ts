@@ -46,7 +46,6 @@ export const useNotifications = (isAuthenticated: boolean) => {
       if (token) {
         setExpoPushToken(token);
         if (isAuthenticated) saveTokenToBackend(token);
-        Alert.alert('Push Token', token); // Force it to show so you can copy it!
       }
     } else if (existingStatus === 'undetermined') {
       // Show custom prompt first
@@ -60,7 +59,6 @@ export const useNotifications = (isAuthenticated: boolean) => {
     if (token) {
       setExpoPushToken(token);
       if (isAuthenticated) saveTokenToBackend(token);
-      Alert.alert('Push Token', token);
     }
   };
 
